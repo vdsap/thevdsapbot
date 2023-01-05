@@ -1,6 +1,7 @@
 import sqlite3
 from loguru import logger
 from conf_init import check_superadmin
+from datetime import datetime
 
 
 
@@ -21,10 +22,16 @@ def create_db():
 def add_user(message):
     logger.info('Adding user')
     db = sqlite3.connect('users.db')
-    db.execute('INSERT INTO users VALUES (?,?,?,?,?,?,?,?)',
-               (message.date, message.from_user.full_name, message.from_user.mention,
-               message.from_user.id, message.from_user.language_code,
-               message.from_user.is_premium, False, 1))
+    try:
+        db.execute('INSERT INTO users VALUES (?,?,?,?,?,?,?,?)',
+                   (message.date, message.from_user.full_name, message.from_user.mention,
+                   message.from_user.id, message.from_user.language_code,
+                   message.from_user.is_premium, False, 1))
+    except:
+        db.execute('INSERT INTO users VALUES (?,?,?,?,?,?,?,?)',
+                   (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message.from_user.full_name, message.from_user.mention,
+                    message.from_user.id, message.from_user.language_code,
+                    message.from_user.is_premium, False, 1))
     db.commit()
     logger.debug('User added')
     db.close()

@@ -1,5 +1,6 @@
 from aiogram import types
 from loguru import logger
+from subprocess import Popen, PIPE
 from datab import *
 
 def message_commands(dp):
