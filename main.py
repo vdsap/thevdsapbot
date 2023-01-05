@@ -6,7 +6,7 @@ from conf_init import conf_init
 from commands.main_commands import commands
 from commands.admin.console_admin_commands import terminal_commands as term_commands
 from commands.admin.bot_inline_commands import inline_command as inline
-from commands.public_commands import public_commands as pub_commands
+from commands.public_commands import public as pub_commands
 from commands.admin.bot_admin_commands import message_commands as admin_commands
 
 
