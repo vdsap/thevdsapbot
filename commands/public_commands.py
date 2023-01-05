@@ -82,7 +82,7 @@ def public(dp):
         except IndexError:
             arg = 1
         full = requests.get('https://www.cbr-xml-daily.ru/daily_json.js').json()
-        value = full["Valute"]["UAH"]["Value"]//10
+        value = full["Valute"]["UAH"]["Value"]/10
         if arg == 1:
             await message.reply('<b>1₴ --> {}₽</b>'.format(value))
         else:
