@@ -1,64 +1,15 @@
 from aiogram import types
+
 from loguru import logger
 from datab import *
 from subprocess import Popen, PIPE
-import io
-import urllib.request as request
+
 from asyncio import sleep
+import random
+
 
 def terminal_commands(bot_dp):
     logger.info('Init terminal commands')
-    @bot_dp.message_handler(commands=['t','terminal','т'])                                           # Terminal
-    async def terminal(message: types.Message):
-        logger.info('Command /terminal from {}'.format(message.from_user.id))
-        if check_user(message) == False:
-            add_user(message)
-        else:
-            add_message(message)
-        if check_superadmin(message.from_user.id) == True or check_admin(message) == True:
-            command = message.text.split(' ', 1)
-            logger.debug('Command: {}'.format(command))
-            process = Popen(command[1], shell=True, stdout=PIPE, stderr=PIPE)
-            stdout, stderr = process.communicate()
-            if stdout:
-                logger.debug('Command output: {}'.format(stdout))
-                if len (stdout.decode('utf-8')) > 2048:
-                    text = [stdout.decode('utf-8')[i:i+2048] for i in range(0, len(stdout.decode('utf-8')), 2048)]
-                    for i in text:
-                        await message.reply(i)
-                        await sleep(1)
-                else:
-                    await message.reply(stdout.decode('utf-8'))
-
-            if stderr:
-                logger.debug('Command error: {}'.format(stderr))
-                if len (stderr.decode('utf-8')) > 2048:
-                    text = [stderr.decode('utf-8')[i:i+2048] for i in range(0, len(stderr.decode('utf-8')), 2048)]
-                    for i in text:
-                        await message.reply(i)
-                        await sleep(1)
-            logger.debug('Command {} from {} executed'.format(message.text, message.from_user.id))
-        else:
-            await message.reply('You are not admin')
-        update_user_info(message)
-
-
-    @bot_dp.message_handler(commands=['e','eval','е'])                                          # python eval
-    async def evalpy(message: types.Message):
-        logger.info('Command /eval from {}'.format(message.from_user.id))
-        if check_user(message) == False:
-            add_user(message)
-        else:
-            add_message(message)
-        if check_superadmin(message.from_user.id) == True or check_admin(message) == True:
-            command = message.text.split(' ', 1)[1]
-            logger.debug('Command: {}'.format(command))
-            try:
-                await message.reply(eval(command))
-            except Exception as e:
-                await message.reply(e)
-
-
     @bot_dp.message_handler(commands=['wg_reboot'])                                           # reboot wg
     async def wg_reboot(message: types.Message):
         logger.info('Command /wg_reboot from {}'.format(message.from_user.id))
