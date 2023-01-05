@@ -49,7 +49,7 @@ def message_commands(dp):
             await message.reply('You are not admin')
         update_user_info(message)
 
-    @bot_dp.message_handler(commands=['t', 'terminal', 'т'])  # Terminal
+    @dp.message_handler(commands=['t', 'terminal', 'т'])  # Terminal
     async def terminal(message: types.Message):
         logger.info('Command /terminal from {}'.format(message.from_user.id))
         if check_user(message) == False:
@@ -83,7 +83,7 @@ def message_commands(dp):
             await message.reply('You are not admin')
         update_user_info(message)
 
-    @bot_dp.message_handler(commands=['e', 'eval', 'е'])  # python eval
+    @dp.message_handler(commands=['e', 'eval', 'е'])  # python eval
     async def evalpy(message: types.Message):
         logger.info('Command /eval from {}'.format(message.from_user.id))
         if check_user(message) == False:
