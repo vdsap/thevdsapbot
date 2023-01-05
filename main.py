@@ -10,22 +10,23 @@ from inline_commands import inline_command as inline
 
 # logger.level()
 
+async def on_startup(bot_dp):
+    logger.info('Bot started')
+    await bot.send_message(821461129, "Bot started")
+
 logger.info('Init bot')
 conf = conf_init()
 bot = Bot(token=conf['api_token'])
 bot.parse_mode = "html"
-bot_dp = Dispatcher(bot)
 
+bot_dp = Dispatcher(bot)
 logger.info('Init commands')
 commands(bot_dp)
 t_commands(bot_dp)
 inline(bot, bot_dp)
 create_db()
-logger.info('Start bot')
 
-async def on_startup(bot_dp):
-    logger.info('Bot started')
-    await bot.send_message(821461129, "Bot started")
+logger.info('Start bot')
 
 if __name__ == '__main__':
     logger.info('Polling started')
