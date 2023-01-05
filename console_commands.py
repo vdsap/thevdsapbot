@@ -141,31 +141,32 @@ def terminal_commands(bot_dp):
         update_user_info(message)
 
 
-    # @bot_dp.message_handler(commands=['update'])                                        # update bot
-    # async def update(message: types.Message):
-    #     logger.info('Command /update from {}'.format(message.from_user.id))
-    #     if check_user(message) == False:
-    #         add_user(message)
-    #     else:
-    #         add_message(message)
-    #     if check_superadmin(message.from_user.id) == True:
-    #         await message.reply('Updating...')
-    #         process = Popen('git pull', shell=True, stdout=PIPE, stderr=PIPE)
-    #         stdout, stderr = process.communicate()
-    #         if stderr:
-    #             logger.debug('Command error: {}'.format(stderr))
-    #             if len (stderr.decode('utf-8')) > 2048:
-    #                 text = [stderr.decode('utf-8')[i:i+2048] for i in range(0, len(stderr.decode('utf-8')), 2048)]
-    #                 for i in text:
-    #                     await message.reply(i)
-    #                     await sleep(1)
-    #             else:
-    #                 await message.reply(stderr.decode('utf-8'))
-    #         await message.reply('Bot updated')
-    #         logger.debug('Bot updated')
-    #     else:
-    #         await message.reply('You are not admin')
-    #     update_user_info(message)
+    @bot_dp.message_handler(commands=['update'])                                        # update bot
+    async def update(message: types.Message):
+        logger.info('Command /update from {}'.format(message.from_user.id))
+        if check_user(message) == False:
+            add_user(message)
+        else:
+            add_message(message)
+        if check_superadmin(message.from_user.id) == True:
+            await message.reply('Updating...')
+            process = Popen('git pull', shell=True, stdout=PIPE, stderr=PIPE)
+            stdout, stderr = process.communicate()
+            if stderr:
+                logger.debug('Command error: {}'.format(stderr))
+                if len (stderr.decode('utf-8')) > 2048:
+                    text = [stderr.decode('utf-8')[i:i+2048] for i in range(0, len(stderr.decode('utf-8')), 2048)]
+                    for i in text:
+                        await message.reply(i)
+                        await sleep(1)
+                else:
+                    await message.reply(stderr.decode('utf-8'))
+            await message.reply('Bot updated')
+            logger.debug('Bot updated')
+            Popen('systemctl restart thevdsapbot', shell=True, stdout=PIPE, stderr=PIPE)
+        else:
+            await message.reply('You are not admin')
+        update_user_info(message)
 
 
     @bot_dp.message_handler(commands=['start_qbittorrent'])                                            # start qbittorrent
