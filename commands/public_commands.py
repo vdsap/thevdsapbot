@@ -27,3 +27,64 @@ def public(dp):
         await message.reply(user_info(message))
         logger.debug('Message /info sent to {}'.format(message.from_user.id))
         update_user_info(message)
+
+
+    @dp.message_handler(commands=['$','dollar'])  # $->₽
+    async def dollar(message: types.Message):
+        logger.info('Command /$ from {}'.format(message.from_user.id))
+        if check_user(message) == False:
+            add_user(message)
+        else:
+            add_message(message)
+        import requests
+        try:
+            arg = int(message.text.split(' ', 1)[1])
+        except IndexError:
+            arg = 1
+        full = requests.get('https://www.cbr-xml-daily.ru/daily_json.js').json()
+        value = full["Valute"]["USD"]["Value"]
+        if arg == 1:
+            await message.reply('<b>1$ --> {}₽</b>'.format(value))
+        else:
+            await message.reply(f'{round(value,1)}₽\n<b>${str(arg)} --> {str(round(arg * float(value), 1))}₽</b>')
+        update_user_info(message)
+
+    @dp.message_handler(commands=['€','euro'])  # €->₽
+    async def euro(message: types.Message):
+        logger.info('Command /$ from {}'.format(message.from_user.id))
+        if check_user(message) == False:
+            add_user(message)
+        else:
+            add_message(message)
+        import requests
+        try:
+            arg = int(message.text.split(' ', 1)[1])
+        except IndexError:
+            arg = 1
+        full = requests.get('https://www.cbr-xml-daily.ru/daily_json.js').json()
+        value = full["Valute"]["EUR"]["Value"]
+        if arg == 1:
+            await message.reply('<b>1€ --> {}₽</b>'.format(value))
+        else:
+            await message.reply(f'{round(value, 1)}₽\n<b>€{str(arg)} --> {str(round(arg * float(value), 1))}₽</b>')
+        update_user_info(message)
+
+    @dp.message_handler(commands=['uah','grn','₴'])  # ₴->₽
+    async def uah(message: types.Message):
+        logger.info('Command /$ from {}'.format(message.from_user.id))
+        if check_user(message) == False:
+            add_user(message)
+        else:
+            add_message(message)
+        import requests
+        try:
+            arg = int(message.text.split(' ', 1)[1])
+        except IndexError:
+            arg = 1
+        full = requests.get('https://www.cbr-xml-daily.ru/daily_json.js').json()
+        value = full["Valute"]["UAH"]["Value"]
+        if arg == 1:
+            await message.reply('<b>1₴ --> {}₽</b>'.format(value))
+        else:
+            await message.reply(f'{round(value, 1)}₽\n<b>₴{str(arg)} --> {str(round(arg * float(value), 1))}₽</b>')
+        update_user_info(message)
