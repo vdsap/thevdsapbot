@@ -71,7 +71,6 @@ def message_commands(dp):
                         await sleep(1)
                 else:
                     await message.reply(stdout.decode('utf-8'))
-
             if stderr:
                 logger.debug('Command error: {}'.format(stderr))
                 if len(stderr.decode('utf-8')) > 2048:
@@ -79,9 +78,11 @@ def message_commands(dp):
                     for i in text:
                         await message.reply(i)
                         await sleep(1)
-            logger.debug('Command {} from {} executed'.format(message.text, message.from_user.id))
+            else:
+                await message.reply("Nothing to answer")
         else:
             await message.reply('You are not admin')
+        logger.debug('Command {} from {} executed'.format(message.text, message.from_user.id))
         update_user_info(message)
 
     @dp.message_handler(commands=['e', 'eval', 'е'])  # python eval
