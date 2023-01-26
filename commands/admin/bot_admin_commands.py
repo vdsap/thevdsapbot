@@ -71,6 +71,8 @@ def message_commands(dp):
                         await sleep(1)
                 else:
                     await message.reply(stdout.decode('utf-8'))
+        else:
+            await message.reply('Nothin to otput')
 
             if stderr:
                 logger.debug('Command error: {}'.format(stderr))
