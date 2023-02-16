@@ -112,6 +112,8 @@ def terminal_commands(bot_dp):
                         await sleep(1)
                 else:
                     await message.reply(stderr.decode('utf-8'))
+            if stdout:
+                await message.reply(stdout.decode('utf-8'))
             await message.reply('Bot updated')
             logger.debug('Bot updated')
             Popen('systemctl restart thevdsapbot', shell=True, stdout=PIPE, stderr=PIPE)
@@ -139,6 +141,8 @@ def terminal_commands(bot_dp):
                         await sleep(1)
                 else:
                     await message.reply(stderr.decode('utf-8'))
+            if stdout:
+                await message.reply(stdout.decode('utf-8'))
             await message.reply('Qbittorrent started')
             logger.debug('Qbittorrent started')
         else:
@@ -164,6 +168,8 @@ def terminal_commands(bot_dp):
                         await sleep(1)
                 else:
                     await message.reply(stderr.decode('utf-8'))
+            if stdout:
+                await message.reply(stdout.decode('utf-8'))
             await message.reply('Qbittorrent stopped')
             logger.debug('Qbittorrent stopped')
         else:
@@ -192,6 +198,7 @@ def terminal_commands(bot_dp):
                     await message.reply(stderr.decode('utf-8'))
                 logger.debug('Vdsaphtml command error')
             if stdout:
+                await message.reply(stdout.decode('utf-8'))
                 logger.debug('Vdsaphtml updated')
                 await message.reply('Vdsaphtml updated')
                 Popen('systemctl restart nginx', shell=True, stdout=PIPE, stderr=PIPE)
