@@ -190,9 +190,11 @@ def terminal_commands(bot_dp):
                         await sleep(1)
                 else:
                     await message.reply(stderr.decode('utf-8'))
-            await message.reply('Vdsaphtml updated')
-            logger.debug('Vdsaphtml updated')
-            Popen('systemctl restart nginx', shell=True, stdout=PIPE, stderr=PIPE)
+                logger.debug('Vdsaphtml command error')
+            if stdout:
+                logger.debug('Vdsaphtml updated')
+                await message.reply('Vdsaphtml updated')
+                Popen('systemctl restart nginx', shell=True, stdout=PIPE, stderr=PIPE)
         else:
             await message.reply('You are not admin')
         update_user_info(message)
