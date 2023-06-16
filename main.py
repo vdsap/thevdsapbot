@@ -8,6 +8,7 @@ from commands.admin.console_admin_commands import terminal_commands as term_comm
 from commands.admin.bot_inline_commands import inline_command as inline
 from commands.public_commands import public as pub_commands
 from commands.admin.bot_admin_commands import message_commands as admin_commands
+import asyncio
 
 
 # logger.level()
@@ -34,5 +35,5 @@ logger.info('Start bot')
 
 if __name__ == '__main__':
     logger.info('Polling started')
-    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
+    asyncio.run(executor.start_polling(dp, skip_updates=True, on_startup=on_startup))
 
