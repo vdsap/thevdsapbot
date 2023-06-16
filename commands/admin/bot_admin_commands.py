@@ -67,16 +67,16 @@ def message_commands(dp):
                 if len(stdout.decode('utf-8')) > 2048:
                     text = [stdout.decode('utf-8')[i:i + 2048] for i in range(0, len(stdout.decode('utf-8')), 2048)]
                     for i in text:
-                        await message.reply(i)
+                        await message.reply(f'<code>{i}</code>')
                         await sleep(1)
                 else:
-                    await message.reply(stdout.decode('utf-8'))
+                    await message.reply(f"""<code>{stdout.decode('utf-8')}</code>""")
             if stderr:
                 logger.debug('Command error: {}'.format(stderr))
                 if len(stderr.decode('utf-8')) > 2048:
                     text = [stderr.decode('utf-8')[i:i + 2048] for i in range(0, len(stderr.decode('utf-8')), 2048)]
                     for i in text:
-                        await message.reply(i)
+                        await message.reply(f'<code>{i}</code>')
                         await sleep(1)
             else:
                 await message.reply("Nothing to answer")
