@@ -99,3 +99,16 @@ def message_commands(dp):
                 await message.reply(eval(command))
             except Exception as e:
                 await message.reply(e)
+
+    @dp.message_handler(commands=['samokat'])  # отдать смену в самокате
+    async def samokat(message: types.Message):
+        logger.info('Command /samokat from {}'.format(message.from_user.id))
+        if check_user(message) == False:
+            add_user(message)
+        else:
+            add_message(message)
+        if check_superadmin(message.from_user.id) == True or check_admin(message) == True:
+            await message.answer('Ожидаю реплай в стиле: фото\n')
+            logger.debug('Ожидаю реплай в стиле: фото')
+            async def samokat_reply(message: types.Message):
+                logger.debug(message)
