@@ -74,7 +74,7 @@ def terminal_commands(bot_dp):
             add_message(message)
         if check_superadmin(message.from_user.id) == True:
             await message.reply('Rebooting...')
-            process = Popen('systemctl restart thevdsapbot', shell=True, stdout=PIPE, stderr=PIPE)
+            process = Popen('sudo systemctl restart thevdsapbot', shell=True, stdout=PIPE, stderr=PIPE)
             stdout, stderr = process.communicate()
             if stderr:
                 logger.debug('Command error: {}'.format(stderr))
@@ -116,7 +116,7 @@ def terminal_commands(bot_dp):
                 await message.reply(stdout.decode('utf-8'))
             await message.reply('Bot updated')
             logger.debug('Bot updated')
-            Popen('systemctl restart thevdsapbot', shell=True, stdout=PIPE, stderr=PIPE)
+            Popen('sudo systemctl restart thevdsapbot', shell=True, stdout=PIPE, stderr=PIPE)
         else:
             await message.reply('You are not admin')
         update_user_info(message)
@@ -130,7 +130,7 @@ def terminal_commands(bot_dp):
         else:
             add_message(message)
         if check_superadmin(message.from_user.id) == True or check_admin(message) == True:
-            process = Popen('systemctl start qbittorrent.service', shell=True, stdout=PIPE, stderr=PIPE)
+            process = Popen('sudo systemctl start qbittorrent.service', shell=True, stdout=PIPE, stderr=PIPE)
             stdout, stderr = process.communicate()
             if stderr:
                 logger.debug('Command error: {}'.format(stderr))
@@ -157,7 +157,7 @@ def terminal_commands(bot_dp):
         else:
             add_message(message)
         if check_superadmin(message.from_user.id) == True or check_admin(message) == True:
-            process = Popen('systemctl stop qbittorrent.service', shell=True, stdout=PIPE, stderr=PIPE)
+            process = Popen('sudo systemctl stop qbittorrent.service', shell=True, stdout=PIPE, stderr=PIPE)
             stdout, stderr = process.communicate()
             if stderr:
                 logger.debug('Command error: {}'.format(stderr))
@@ -201,7 +201,7 @@ def terminal_commands(bot_dp):
                 await message.reply(stdout.decode('utf-8'))
                 logger.debug('Vdsaphtml updated')
                 await message.reply('Vdsaphtml updated')
-                Popen('systemctl restart nginx', shell=True, stdout=PIPE, stderr=PIPE)
+                Popen('sudo systemctl restart nginx', shell=True, stdout=PIPE, stderr=PIPE)
         else:
             await message.reply('You are not admin')
         update_user_info(message)
