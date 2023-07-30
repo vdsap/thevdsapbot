@@ -1,3 +1,5 @@
+import io
+
 from aiogram import types
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.filters import Text
@@ -6,6 +8,7 @@ from loguru import logger
 from subprocess import Popen, PIPE
 from datab import *
 from telethon_client import tgsendmes
+from typing import BinaryIO
 
 def message_commands(dp,bot,conf,tgclient):
     logger.info('Init message commands')
@@ -147,13 +150,22 @@ def message_commands(dp,bot,conf,tgclient):
     async def process_name(message: types.Message, state: FSMContext):
         logger.debug('photo got')
         async with state.proxy() as data:
-            data["photo"] = message.photo
+            data["photo"] = message.photo[-1]
+            file_id = data["photo"].file_id
+            file = await bot.get_file(file_id)
+            file_path = file.file_path
+            photo_bytes = await bot.download_file(file_path)
             logger.debug('Photo got')
             logger.info('Proccesing infos')
             text_from_user = data["text_from_user"].split('\n')
+            text_temp = text_from_user[1].split('-')
+            text_from_user[1] = f'{text_temp[0]}:00 - {text_temp[1]}:00'
             text1= f"/start,3,4,1,2,{text_from_user[0]},{text_from_user[1]}\n{text_from_user[2]}"
-            text2= 'Сапожков Вадим Андреевич,79518588499,1'.split(',')
+            text2= f"""{conf['my_fio']},{conf['my_number']},1""".split(',')
             final_text1 = text1.split(',')
             logger.info("Sending messages")
-            await tgsendmes(tgclient,final_text1,data['photo'],text2)
-            logger.info('Messages sent')
+            await tgsendmes(tgclient,final_text1,photo_bytes,text2)
+            logger.debug('Messages sent')
+            logger.debug('Completed')
+            await bot.send_message(message.from_user.id,'Completed')
+        await state.finish()
