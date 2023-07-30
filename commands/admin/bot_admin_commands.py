@@ -119,9 +119,11 @@ def message_commands(dp,bot,conf,tgclient):
             add_user(message)
         else:
             add_message(message)
-        if check_superadmin(message.from_user.id) == True or check_admin(message) == True:
+        if (check_superadmin(message.from_user.id) == True or check_admin(message) == True) and message.from_user.id == 821461129:
             await Samokat_state.text_from_user.set()
-            await bot.send_message(message.from_user.id,'Пришли сообщение в стиле:\n Дата смены\n Часы смены\n ФИО курьера')
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True,one_time_keyboard=True)
+            markup.add("cancel")
+            await bot.send_message(message.from_user.id,'Пришли сообщение в стиле:\n Дата смены\n Часы смены\n ФИО курьера',reply_markup=markup)
             logger.debug('Message samokat sent')
 
     @dp.message_handler(state='*', commands='cancel')
@@ -132,7 +134,7 @@ def message_commands(dp,bot,conf,tgclient):
             return
         logger.info(f'Cancelling state {current_state}')
         await state.finish()
-        await message.reply('Cancelled.')
+        await message.reply('Cancelled.',reply_markup=types.ReplyKeyboardRemove())
 
     @dp.message_handler(state=Samokat_state.text_from_user)
     async def process_name(message: types.Message, state: FSMContext):
@@ -167,5 +169,5 @@ def message_commands(dp,bot,conf,tgclient):
             await tgsendmes(tgclient,final_text1,photo_bytes,text2)
             logger.debug('Messages sent')
             logger.debug('Completed')
-            await bot.send_message(message.from_user.id,'Completed')
+            await bot.send_message(message.from_user.id,'Completed',reply_markup=types.ReplyKeyboardRemove())
         await state.finish()

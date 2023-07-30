@@ -3,7 +3,7 @@ from loguru import logger
 from telethon import TelegramClient
 
 def conf_init():
-    with open('conf.yaml') as f:
+    with open('conf.yaml',encoding='UTF-8') as f:
         logger.debug('Loading config')
         return load(f)
 

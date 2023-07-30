@@ -1,5 +1,5 @@
 from loguru import logger
-from aiogram import Bot, Dispatcher, executor
+from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from datab import create_db
@@ -16,7 +16,7 @@ import asyncio
 
 async def on_startup(dp):
     logger.info('Bot started')
-    await bot.send_message(821461129, "Bot started")
+    await bot.send_message(821461129, "Bot started",reply_markup=types.ReplyKeyboardRemove())
 
 
 logger.info('Init bot')
