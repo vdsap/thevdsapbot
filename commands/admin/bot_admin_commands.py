@@ -1,9 +1,13 @@
 from aiogram import types
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.dispatcher.filters import Text
+from aiogram.dispatcher import FSMContext
 from loguru import logger
 from subprocess import Popen, PIPE
 from datab import *
+from telethon_client import tgsendmes
 
-def message_commands(dp):
+def message_commands(dp,bot,conf,tgclient):
     logger.info('Init message commands')
 
     @dp.message_handler(commands=['addadmin'])  # Add admin
@@ -100,6 +104,11 @@ def message_commands(dp):
             except Exception as e:
                 await message.reply(e)
 
+
+    class Samokat_state(StatesGroup):
+        text_from_user = State()
+        photo = State()
+
     @dp.message_handler(commands=['samokat'])  # отдать смену в самокате
     async def samokat(message: types.Message):
         logger.info('Command /samokat from {}'.format(message.from_user.id))
@@ -108,7 +117,43 @@ def message_commands(dp):
         else:
             add_message(message)
         if check_superadmin(message.from_user.id) == True or check_admin(message) == True:
-            await message.answer('Ожидаю реплай в стиле: фото\n')
-            logger.debug('Ожидаю реплай в стиле: фото')
-            async def samokat_reply(message: types.Message):
-                logger.debug(message)
+            await Samokat_state.text_from_user.set()
+            await bot.send_message(message.from_user.id,'Пришли сообщение в стиле:\n Дата смены\n Часы смены\n ФИО курьера')
+            logger.debug('Message samokat sent')
+
+    @dp.message_handler(state='*', commands='cancel')
+    @dp.message_handler(Text(equals='cancel', ignore_case=True), state='*')
+    async def cancel_handler(message: types.Message, state: FSMContext):
+        current_state = await state.get_state()
+        if current_state is None:
+            return
+        logger.info(f'Cancelling state {current_state}')
+        await state.finish()
+        await message.reply('Cancelled.')
+
+    @dp.message_handler(state=Samokat_state.text_from_user)
+    async def process_name(message: types.Message, state: FSMContext):
+        """
+        Process text from user
+        """
+        async with state.proxy() as data:
+            data['text_from_user'] = message.text
+
+        await Samokat_state.photo.set()
+        await bot.send_message(message.from_user.id,'Пришли скриншот переписки')
+        logger.info('Text_from_user got')
+
+    @dp.message_handler(state=Samokat_state.photo,content_types=['photo'])
+    async def process_name(message: types.Message, state: FSMContext):
+        logger.debug('photo got')
+        async with state.proxy() as data:
+            data["photo"] = message.photo
+            logger.debug('Photo got')
+            logger.info('Proccesing infos')
+            text_from_user = data["text_from_user"].split('\n')
+            text1= f"/start,3,4,1,2,{text_from_user[0]},{text_from_user[1]}\n{text_from_user[2]}"
+            text2= 'Сапожков Вадим Андреевич,79518588499,1'.split(',')
+            final_text1 = text1.split(',')
+            logger.info("Sending messages")
+            await tgsendmes(tgclient,final_text1,data['photo'],text2)
+            logger.info('Messages sent')
