@@ -166,8 +166,10 @@ def message_commands(dp,bot,conf,tgclient):
             text2= f"""{conf['my_fio']},{conf['my_number']},1""".split(',')
             final_text1 = text1.split(',')
             logger.info("Sending messages")
-            await tgsendmes(tgclient,final_text1,photo_bytes,text2)
-            logger.debug('Messages sent')
-            logger.debug('Completed')
-            await bot.send_message(message.from_user.id,'Completed',reply_markup=types.ReplyKeyboardRemove())
+            result = await tgsendmes(tgclient,final_text1,photo_bytes,text2)
+            if result == None:
+                logger.debug('Completed')
+                await bot.send_message(message.from_user.id,'Completed',reply_markup=types.ReplyKeyboardRemove())
+            else:
+                await bot.send_message(message.from_user.id, result, reply_markup=types.ReplyKeyboardRemove())
         await state.finish()
