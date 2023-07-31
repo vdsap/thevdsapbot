@@ -1,19 +1,40 @@
-from asyncio import sleep
+from asyncio.exceptions import TimeoutError
 from loguru import logger
 
-contact = 'SamokatInternalSupportBot'
-# contact = 950545630 # GasPlita
+# contact = 'SamokatInternalSupportBot'
+
+
+contact = 950545630 # GasPlita
 async def tgsendmes(client, text1, photo, text2):
-    async with client:
+    await client.connect()
+    await client.start()
+
+    async with client.conversation(contact) as conv:
         logger.debug('Sending texts')
-        for text in text1:
-            await client.send_message(contact, text)
-            await sleep(1)
+        for txt1 in text1:
+            logger.debug(f'Sending: {txt1}')
+            await conv.send_message(txt1)
+            try:
+                await conv.get_response(timeout=600)
+            except TimeoutError:
+                logger.error("Бот самоката мертв")
+                return "Samokat bot dead"
         logger.info('Texts sent')
-        await sleep(1)
         logger.debug('Sending photo')
-        await client.send_file(contact, photo)
-        await sleep(1)
-        for txt in text2:
-            await client.send_message(contact, txt)
-            await sleep(1)
+        await conv.send_file(photo)
+        try:
+            await conv.get_response(timeout=600)
+        except TimeoutError:
+            logger.error("Бот самоката мертв")
+            return "Samokat bot dead"
+        for txt2 in text2:
+            logger.debug(f'Sending: {txt2}')
+            await conv.send_message(txt2)
+            try:
+                await conv.get_response(timeout=600)
+            except TimeoutError:
+                logger.error("Бот самоката мертв")
+                return "Samokat bot dead"
+    logger.debug('Messages sent')
+    await client.disconnect()
+    return
