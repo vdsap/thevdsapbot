@@ -5,12 +5,14 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher import FSMContext
 from loguru import logger
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, TimeoutExpired
 from datab import *
 from telethon_client import tgsendmes
 from typing import BinaryIO
+from asyncio import sleep
 
-def message_commands(dp,bot,conf,tgclient):
+
+def message_commands(dp, bot, conf, tgclient):
     logger.info('Init message commands')
 
     @dp.message_handler(commands=['addadmin'])  # Add admin
@@ -28,7 +30,7 @@ def message_commands(dp,bot,conf,tgclient):
     @dp.message_handler(commands=['adminlist'])  # Admin list
     async def adminlist(message: types.Message):
         logger.info('Command /adminlist from {}'.format(message.from_user.id))
-        if check_user(message) == False:
+        if not check_user(message):
             add_user(message)
         else:
             add_message(message)
@@ -38,7 +40,7 @@ def message_commands(dp,bot,conf,tgclient):
     @dp.message_handler(commands=['speedtest'])  # speedtest
     async def speedtest(message: types.Message):
         logger.info('Command /speedtest from {}'.format(message.from_user.id))
-        if check_user(message) == False:
+        if not check_user(message):
             add_user(message)
         else:
             add_message(message)
@@ -47,12 +49,16 @@ def message_commands(dp,bot,conf,tgclient):
             logger.info('Running speedtest...')
             try:
                 p = Popen(['speedtest-cli', '--simple'], stdout=PIPE, stderr=PIPE)
-                out, err = p.communicate()
+                out, err = p.communicate(timeout=30)
                 await mes.edit_text(out.decode('utf-8'))
                 logger.info('Speedtest done')
             except FileNotFoundError:
                 await mes.edit_text('speedtest-cli not found')
                 logger.error('speedtest-cli not found')
+            except TimeoutExpired:
+                p.terminate()
+                await mes.edit_text('speedtest-cli timed out')
+                logger.error('speedtest-cli timed out')
         else:
             await message.reply('You are not admin')
         update_user_info(message)
@@ -60,7 +66,7 @@ def message_commands(dp,bot,conf,tgclient):
     @dp.message_handler(commands=['t', 'terminal', 'т'])  # Terminal
     async def terminal(message: types.Message):
         logger.info('Command /terminal from {}'.format(message.from_user.id))
-        if check_user(message) == False:
+        if not check_user(message):
             add_user(message)
         else:
             add_message(message)
@@ -107,7 +113,6 @@ def message_commands(dp,bot,conf,tgclient):
             except Exception as e:
                 await message.reply(e)
 
-
     class Samokat_state(StatesGroup):
         text_from_user = State()
         photo = State()
@@ -115,15 +120,18 @@ def message_commands(dp,bot,conf,tgclient):
     @dp.message_handler(commands=['samokat'])  # отдать смену в самокате
     async def samokat(message: types.Message):
         logger.info('Command /samokat from {}'.format(message.from_user.id))
-        if check_user(message) == False:
+        if not check_user(message):
             add_user(message)
         else:
             add_message(message)
-        if (check_superadmin(message.from_user.id) == True or check_admin(message) == True) and message.from_user.id == 821461129:
+        if (check_superadmin(message.from_user.id) == True or check_admin(
+                message)) and message.from_user.id == 821461129:
             await Samokat_state.text_from_user.set()
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True,one_time_keyboard=True)
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True, one_time_keyboard=True)
             markup.add("cancel")
-            await bot.send_message(message.from_user.id,'Пришли сообщение в стиле:\n Дата смены\n Часы смены\n ФИО курьера',reply_markup=markup)
+            await bot.send_message(message.from_user.id,
+                                   'Пришли сообщение в стиле:\n Дата смены\n Часы смены\n ФИО курьера',
+                                   reply_markup=markup)
             logger.debug('Message samokat sent')
 
     @dp.message_handler(state='*', commands='cancel')
@@ -134,7 +142,7 @@ def message_commands(dp,bot,conf,tgclient):
             return
         logger.info(f'Cancelling state {current_state}')
         await state.finish()
-        await message.reply('Cancelled.',reply_markup=types.ReplyKeyboardRemove())
+        await message.reply('Cancelled.', reply_markup=types.ReplyKeyboardRemove())
 
     @dp.message_handler(state=Samokat_state.text_from_user)
     async def process_name(message: types.Message, state: FSMContext):
@@ -145,10 +153,10 @@ def message_commands(dp,bot,conf,tgclient):
             data['text_from_user'] = message.text
 
         await Samokat_state.photo.set()
-        await bot.send_message(message.from_user.id,'Пришли скриншот переписки')
+        await bot.send_message(message.from_user.id, 'Пришли скриншот переписки')
         logger.info('Text_from_user got')
 
-    @dp.message_handler(state=Samokat_state.photo,content_types=['photo'])
+    @dp.message_handler(state=Samokat_state.photo, content_types=['photo'])
     async def process_name(message: types.Message, state: FSMContext):
         logger.debug('photo got')
         async with state.proxy() as data:
@@ -162,14 +170,14 @@ def message_commands(dp,bot,conf,tgclient):
             text_from_user = data["text_from_user"].split('\n')
             text_temp = text_from_user[1].split('-')
             text_from_user[1] = f'{text_temp[0]}:00 - {text_temp[1]}:00'
-            text1= f"/start,3,4,1,2,{text_from_user[0]},{text_from_user[1]}\n{text_from_user[2]}"
-            text2= f"""{conf['my_fio']},{conf['my_number']},1""".split(',')
+            text1 = f"/start,3,4,1,2,{text_from_user[0]},{text_from_user[1]}\n{text_from_user[2]}"
+            text2 = f"""{conf['my_fio']},{conf['my_number']},1""".split(',')
             final_text1 = text1.split(',')
             logger.info("Sending messages")
-            result = await tgsendmes(tgclient,final_text1,photo_bytes,text2)
-            if result == None:
+            result = await tgsendmes(tgclient, final_text1, photo_bytes, text2)
+            if result is None:
                 logger.debug('Completed')
-                await bot.send_message(message.from_user.id,'Completed',reply_markup=types.ReplyKeyboardRemove())
+                await bot.send_message(message.from_user.id, 'Completed', reply_markup=types.ReplyKeyboardRemove())
             else:
                 await bot.send_message(message.from_user.id, result, reply_markup=types.ReplyKeyboardRemove())
         await state.finish()

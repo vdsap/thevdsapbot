@@ -1,5 +1,7 @@
-aiogram==2.22.2
+aiogram
 loguru==0.6.0
 PyYAML==6.0
-
-Telethon~=1.29.2
+aiohttp==3.9.0rc0
+telethon
+requests
+speedtest-cli

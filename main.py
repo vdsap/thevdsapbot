@@ -1,7 +1,7 @@
 from loguru import logger
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-
+from Logs import TgLogger
 from datab import create_db
 from conf_init import conf_init, tgclient_init
 from commands.main_commands import commands
@@ -13,6 +13,8 @@ import asyncio
 
 
 # logger.level()
+
+
 
 async def on_startup(dp):
     logger.info('Bot started')
@@ -27,6 +29,8 @@ storage = MemoryStorage()
 tgclient = tgclient_init(conf)
 
 dp = Dispatcher(bot, storage=storage)
+tg_logger = TgLogger(bot)
+logger.add(tg_logger.receiving_method, format="<i>{message}</i> ({level}) at {time:HH:mm:ss}", level="DEBUG")
 logger.info('Init commands')
 commands(dp)
 term_commands(dp)
@@ -34,6 +38,7 @@ inline(bot, dp)
 pub_commands(dp)
 admin_commands(dp, bot, conf, tgclient)
 create_db()
+
 
 logger.info('Start bot')
 

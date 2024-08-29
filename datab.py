@@ -46,7 +46,7 @@ def check_user(message):
     else:
         user = db.execute('SELECT * FROM users WHERE id=?', (message,)).fetchall()
         logger.info('Checking user {}'.format(message))
-    if user == []:
+    if not user:
         logger.debug('User not found')
         return False
     else:
@@ -61,7 +61,7 @@ def update_user_info(message):
     db = sqlite3.connect('users.db')
     db.execute('UPDATE users SET Fname=?, username=?, language_code=?, is_premium=? WHERE id=?',
                (message.from_user.full_name, message.from_user.mention, message.from_user.language_code,
-                message.from_user.is_premium, message.from_user.id))
+                message.from_user.values["is_premium"], message.from_user.id))
     db.commit()
     logger.debug('User info updated')
     db.close()

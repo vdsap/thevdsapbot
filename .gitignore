@@ -7,3 +7,8 @@
 /.idea/misc.xml
 /conf.yaml
 /vdsap.session
+commands/admin/__pycache__
+__pycache__
+.idea
+test.py
+vdsap.session-journal
