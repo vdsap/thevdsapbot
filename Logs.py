@@ -17,7 +17,7 @@ class TgLogger:
     async def receiving_method(self, record):
         text = record
         text = f"""{text.split(".")[0]}\n"""
-        if not text.find("ERROR"):
+        if "ERROR" in text:
             TgLogger.LogsQueue.append(text)
             if len(TgLogger.LogsQueue) >= TgLogger.CountLogsSend:
                 print(TgLogger.LogsQueue)
@@ -26,6 +26,6 @@ class TgLogger:
                     text += TgLogger.LogsQueue.pop(-1)
                 await self.bot.send_message(TgLogger.Chat_ID, f"<pre>{text}</pre>")
         else:
-            text = text + self.Ping
-            await self.bot.send_message(TgLogger.Chat_ID, f"<pre>{text}</pre>")
+            text = f"<pre>{text}</pre>" + self.Ping
+            await self.bot.send_message(TgLogger.Chat_ID, text)
 
