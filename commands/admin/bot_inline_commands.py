@@ -5,17 +5,21 @@ import random
 
 def inline_command(bot, dp):
     logger.info('Init Inline commands')
+
     @dp.inline_handler()
     async def inline_eval(inline_query: InlineQuery):
         text = inline_query.query
-        if check_user(inline_query) == False:
+        if not check_user(inline_query):
             add_user(inline_query)
         else:
             add_message(inline_query)
         if check_superadmin(inline_query.from_user.id) == True or check_admin(inline_query.from_user.id) == True:
             if text not in ['', ' ']:
-                try: evaluated = eval(text)
-                except Exception as e: evaluated = e
+                try:
+                    code = compile(text, "<string>", "eval")
+                    evaluated = eval(code)
+                except Exception as e:
+                    evaluated = e
             else:
                 evaluated = 'Nothing to evaluate'
         else:

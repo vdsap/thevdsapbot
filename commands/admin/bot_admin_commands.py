@@ -101,7 +101,7 @@ def message_commands(dp, bot, conf, tgclient):
     @dp.message_handler(commands=['e', 'eval', 'е'])  # python eval
     async def evalpy(message: types.Message):
         logger.info('Command /eval from {}'.format(message.from_user.id))
-        if check_user(message) == False:
+        if not check_user(message):
             add_user(message)
         else:
             add_message(message)
@@ -113,71 +113,71 @@ def message_commands(dp, bot, conf, tgclient):
             except Exception as e:
                 await message.reply(e)
 
-    class Samokat_state(StatesGroup):
-        text_from_user = State()
-        photo = State()
-
-    @dp.message_handler(commands=['samokat'])  # отдать смену в самокате
-    async def samokat(message: types.Message):
-        logger.info('Command /samokat from {}'.format(message.from_user.id))
-        if not check_user(message):
-            add_user(message)
-        else:
-            add_message(message)
-        if (check_superadmin(message.from_user.id) == True or check_admin(
-                message)) and message.from_user.id == 821461129:
-            await Samokat_state.text_from_user.set()
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True, one_time_keyboard=True)
-            markup.add("cancel")
-            await bot.send_message(message.from_user.id,
-                                   'Пришли сообщение в стиле:\n Дата смены\n Часы смены\n ФИО курьера',
-                                   reply_markup=markup)
-            logger.debug('Message samokat sent')
-
-    @dp.message_handler(state='*', commands='cancel')
-    @dp.message_handler(Text(equals='cancel', ignore_case=True), state='*')
-    async def cancel_handler(message: types.Message, state: FSMContext):
-        current_state = await state.get_state()
-        if current_state is None:
-            return
-        logger.info(f'Cancelling state {current_state}')
-        await state.finish()
-        await message.reply('Cancelled.', reply_markup=types.ReplyKeyboardRemove())
-
-    @dp.message_handler(state=Samokat_state.text_from_user)
-    async def process_name(message: types.Message, state: FSMContext):
-        """
-        Process text from user
-        """
-        async with state.proxy() as data:
-            data['text_from_user'] = message.text
-
-        await Samokat_state.photo.set()
-        await bot.send_message(message.from_user.id, 'Пришли скриншот переписки')
-        logger.info('Text_from_user got')
-
-    @dp.message_handler(state=Samokat_state.photo, content_types=['photo'])
-    async def process_name(message: types.Message, state: FSMContext):
-        logger.debug('photo got')
-        async with state.proxy() as data:
-            data["photo"] = message.photo[-1]
-            file_id = data["photo"].file_id
-            file = await bot.get_file(file_id)
-            file_path = file.file_path
-            photo_bytes = await bot.download_file(file_path)
-            logger.debug('Photo got')
-            logger.info('Proccesing infos')
-            text_from_user = data["text_from_user"].split('\n')
-            text_temp = text_from_user[1].split('-')
-            text_from_user[1] = f'{text_temp[0]}:00 - {text_temp[1]}:00'
-            text1 = f"/start,3,4,1,2,{text_from_user[0]},{text_from_user[1]}\n{text_from_user[2]}"
-            text2 = f"""{conf['my_fio']},{conf['my_number']},1""".split(',')
-            final_text1 = text1.split(',')
-            logger.info("Sending messages")
-            result = await tgsendmes(tgclient, final_text1, photo_bytes, text2)
-            if result is None:
-                logger.debug('Completed')
-                await bot.send_message(message.from_user.id, 'Completed', reply_markup=types.ReplyKeyboardRemove())
-            else:
-                await bot.send_message(message.from_user.id, result, reply_markup=types.ReplyKeyboardRemove())
-        await state.finish()
+    # class Samokat_state(StatesGroup):
+    #     text_from_user = State()
+    #     photo = State()
+    #
+    # @dp.message_handler(commands=['samokat'])  # отдать смену в самокате
+    # async def samokat(message: types.Message):
+    #     logger.info('Command /samokat from {}'.format(message.from_user.id))
+    #     if not check_user(message):
+    #         add_user(message)
+    #     else:
+    #         add_message(message)
+    #     if (check_superadmin(message.from_user.id) == True or check_admin(
+    #             message)) and message.from_user.id == 821461129:
+    #         await Samokat_state.text_from_user.set()
+    #         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True, one_time_keyboard=True)
+    #         markup.add("cancel")
+    #         await bot.send_message(message.from_user.id,
+    #                                'Пришли сообщение в стиле:\n Дата смены\n Часы смены\n ФИО курьера',
+    #                                reply_markup=markup)
+    #         logger.debug('Message samokat sent')
+    #
+    # @dp.message_handler(state='*', commands='cancel')
+    # @dp.message_handler(Text(equals='cancel', ignore_case=True), state='*')
+    # async def cancel_handler(message: types.Message, state: FSMContext):
+    #     current_state = await state.get_state()
+    #     if current_state is None:
+    #         return
+    #     logger.info(f'Cancelling state {current_state}')
+    #     await state.finish()
+    #     await message.reply('Cancelled.', reply_markup=types.ReplyKeyboardRemove())
+    #
+    # @dp.message_handler(state=Samokat_state.text_from_user)
+    # async def process_name(message: types.Message, state: FSMContext):
+    #     """
+    #     Process text from user
+    #     """
+    #     async with state.proxy() as data:
+    #         data['text_from_user'] = message.text
+    #
+    #     await Samokat_state.photo.set()
+    #     await bot.send_message(message.from_user.id, 'Пришли скриншот переписки')
+    #     logger.info('Text_from_user got')
+    #
+    # @dp.message_handler(state=Samokat_state.photo, content_types=['photo'])
+    # async def process_name(message: types.Message, state: FSMContext):
+    #     logger.debug('photo got')
+    #     async with state.proxy() as data:
+    #         data["photo"] = message.photo[-1]
+    #         file_id = data["photo"].file_id
+    #         file = await bot.get_file(file_id)
+    #         file_path = file.file_path
+    #         photo_bytes = await bot.download_file(file_path)
+    #         logger.debug('Photo got')
+    #         logger.info('Proccesing infos')
+    #         text_from_user = data["text_from_user"].split('\n')
+    #         text_temp = text_from_user[1].split('-')
+    #         text_from_user[1] = f'{text_temp[0]}:00 - {text_temp[1]}:00'
+    #         text1 = f"/start,3,4,1,2,{text_from_user[0]},{text_from_user[1]}\n{text_from_user[2]}"
+    #         text2 = f"""{conf['my_fio']},{conf['my_number']},1""".split(',')
+    #         final_text1 = text1.split(',')
+    #         logger.info("Sending messages")
+    #         result = await tgsendmes(tgclient, final_text1, photo_bytes, text2)
+    #         if result is None:
+    #             logger.debug('Completed')
+    #             await bot.send_message(message.from_user.id, 'Completed', reply_markup=types.ReplyKeyboardRemove())
+    #         else:
+    #             await bot.send_message(message.from_user.id, result, reply_markup=types.ReplyKeyboardRemove())
+    #     await state.finish()
