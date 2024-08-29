@@ -2,6 +2,7 @@ from aiogram import types
 from loguru import logger
 # from subprocess import Popen, PIPE
 from datab import check_user, add_user, add_message, update_user_info
+from datab import *
 
 
 def commands(dp):
@@ -30,7 +31,7 @@ def commands(dp):
 /addadmin: Add user to admins
 /removeadmin: Remove user from admins
 /adminlist: Get list of admins
-/contact: Write to autor"""
+/contact: Write to autor\n"""
         admin_text = """Admin commands:
 /reboot: Reboot TheVdsapbot
 /update: Update from git and Restart
@@ -41,7 +42,10 @@ def commands(dp):
 /speedtest
 /terminal /t /т - Terminal commands
 /eval /e /е - Python eval"""
-        await message.reply()
+        if check_admin(message.from_user.id) is True or check_superadmin(message.from_user.id) is True:
+            await message.reply(user_text + admin_text)
+        else:
+            await message.reply(user_text)
         if not check_user(message):
             add_user(message)
         else:

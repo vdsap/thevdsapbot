@@ -44,7 +44,7 @@ def message_commands(dp, bot, conf, tgclient):
             add_user(message)
         else:
             add_message(message)
-        if check_admin(message.from_user.id) == True or check_superadmin(message.from_user.id) == True:
+        if check_admin(message.from_user.id) is True or check_superadmin(message.from_user.id) is True:
             mes = await message.reply('Running speedtest...')
             logger.info('Running speedtest...')
             try:
@@ -109,10 +109,12 @@ def message_commands(dp, bot, conf, tgclient):
             command = message.text.split(' ', 1)[1]
             logger.debug('Command: {}'.format(command))
             try:
-                await message.reply(eval(command))
+                result = eval(command)
+                logger.info(result)
             except Exception as e:
-                await message.reply(e)
-
+                result = f"{e.msg}: {e.text}"
+                logger.error(result)
+            await message.reply(result)
     # class Samokat_state(StatesGroup):
     #     text_from_user = State()
     #     photo = State()
