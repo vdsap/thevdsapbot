@@ -20,7 +20,9 @@ def commands(dp):
     @dp.message_handler(commands=['help'])  # Help
     async def send_help(message: types.Message):
         logger.info('Command /help from {}'.format(message.from_user.id))
-        await message.reply("""Avaliable commands:
+        user_text = """Avaliable commands:
+/$ /dollar: Convert $->₽
+/€ /euro: Convert €->₽
 /start: Start bot
 /help: list of avaliable commands
 /speedtest: Run speedtest
@@ -28,7 +30,18 @@ def commands(dp):
 /addadmin: Add user to admins
 /removeadmin: Remove user from admins
 /adminlist: Get list of admins
-/contact: Write to autor""")
+/contact: Write to autor"""
+        admin_text = """Admin commands:
+/reboot: Reboot TheVdsapbot
+/update: Update from git and Restart
+/update_site: Update from git site
+/addadmin
+/removeadmin
+/adminlist
+/speedtest
+/terminal /t /т - Terminal commands
+/eval /e /е - Python eval"""
+        await message.reply()
         if not check_user(message):
             add_user(message)
         else:
