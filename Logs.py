@@ -17,10 +17,9 @@ class TgLogger:
     async def receiving_method(self, record):
         text = record
         text = f"""{text.split(".")[0]}\n"""
-        if "ERROR" in text:
+        if "ERROR" not in text:
             TgLogger.LogsQueue.append(text)
             if len(TgLogger.LogsQueue) >= TgLogger.CountLogsSend:
-                print(TgLogger.LogsQueue)
                 text = ""
                 for i in range(TgLogger.CountLogsSend):
                     text += TgLogger.LogsQueue.pop(-1)
