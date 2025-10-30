@@ -27,7 +27,6 @@ bot = Bot(token=conf['api_token'])
 bot.parse_mode = "html"
 storage = MemoryStorage()
 tgclient = tgclient_init(conf)
-
 dp = Dispatcher(bot, storage=storage)
 tg_logger = TgLogger(bot,conf)
 logger.add(tg_logger.receiving_method, format="{time:HH:mm:ss} ({level}) {message}", level="INFO")
